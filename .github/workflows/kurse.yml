@@ -1,0 +1,31 @@
+name: Kurstermine aktualisieren
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # stündlich
+  workflow_dispatch:        # per Knopf in GitHub starten
+
+permissions:
+  contents: write
+
+jobs:
+  kurse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Termine aus dem Shop holen
+        run: python scripts/kurse.py
+      - name: Speichern, wenn sich Termine geändert haben
+        run: |
+          # Zeitstempel "stand" zählt nicht als Änderung
+          if git diff --quiet -I '"stand"' -- kurse.json && [ "$(date -u +%u%H)" != "103" ]; then
+            echo "Keine neuen Termine."; git checkout -- kurse.json; exit 0
+          fi
+          git config user.name "schaufenster-bot"
+          git config user.email "schaufenster-bot@users.noreply.github.com"
+          git add kurse.json
+          git commit -m "Kurstermine aktualisiert"
+          git push

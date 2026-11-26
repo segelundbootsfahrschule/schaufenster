@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schaufenster Segel-und-Bootsfahrschule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE  locker, per Du, fachlich sauber - Schaufenster, aus 5 m Entfernung lesbar
+   IDEA   ein Schaufenster wie ein Hafen-Infoboard: Werbung + Live-Wetter im Wechsel
+   PICTURE grosse Fotos mit langsamer Kamerafahrt, die Logo-Welle läuft unten durch
+   COLOUR Nachtblau #072130, Navy #105692, Sky #469BE1, Weiss
+   TYPE   Open Sans 800 für Titel, 600 für Text; Stage fest 1920x1080, skaliert */
+:root{--night:#072130;--navy:#105692;--sky:#469BE1;--ice:#EEF3F7;--white:#fff}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#000;overflow:hidden}
+body{font-family:"Open Sans",Arial,sans-serif;color:var(--white)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;background:var(--night);overflow:hidden}
+
+/* --- Folien --- */
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;overflow:hidden}
+.slide.on{opacity:1;z-index:2}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.12)}
+.on .bg{animation:kb var(--dur,9s) linear forwards}
+@keyframes kb{from{transform:scale(1.12) translate(1.5%,1%)}to{transform:scale(1) translate(0,0)}}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,33,48,.94) 0%,rgba(7,33,48,.78) 38%,rgba(7,33,48,.15) 70%,rgba(7,33,48,0) 100%)}
+.shade.full{background:linear-gradient(180deg,rgba(7,33,48,.35),rgba(7,33,48,.85))}
+.content{position:absolute;left:110px;top:260px;width:980px}
+.a{opacity:0;transform:translateY(40px)}
+.on .a{animation:up .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i,0)*.18s + .35s)}
+@keyframes up{to{opacity:1;transform:none}}
+.kicker{font-size:36px;font-weight:700;color:var(--sky);margin-bottom:14px}
+h1{font-size:96px;line-height:1.02;font-weight:800;letter-spacing:-1px;text-wrap:balance}
+h2{font-size:76px;line-height:1.04;font-weight:800;letter-spacing:-.5px;text-wrap:balance}
+.lead{font-size:40px;font-weight:600;line-height:1.3;margin-top:28px;color:#DDE9F3}
+ul.pts{list-style:none;padding:0;margin-top:40px}
+ul.pts li{font-size:38px;font-weight:600;line-height:1.3;padding:14px 0 14px 70px;position:relative}
+ul.pts li::before{content:"";position:absolute;left:0;top:22px;width:44px;height:30px;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 30'%3E%3Cpath d='M2 18c6-8 12-8 18 0s12 8 22 0' fill='none' stroke='%23469BE1' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E")}
+.tags{display:flex;flex-wrap:wrap;gap:16px;margin-top:44px}
+.tag{font-size:32px;font-weight:700;padding:10px 28px;border-radius:999px;background:var(--sky);color:var(--night)}
+.tag.o{background:transparent;border:3px solid var(--sky);color:var(--white)}
+.photo{position:absolute;right:0;top:0;width:52%;height:100%;overflow:hidden;clip-path:polygon(14% 0,100% 0,100% 100%,0 100%)}
+.photo .bg{transform:scale(1.15)}
+
+/* Statistik */
+.stat{display:flex;align-items:baseline;gap:24px;margin-top:10px}
+.big{font-size:330px;font-weight:800;line-height:.9;color:var(--sky);letter-spacing:-8px}
+.of{font-size:110px;font-weight:800;color:#9FC3E2}
+.badge{display:inline-flex;align-items:center;gap:20px;margin-top:56px;padding:20px 34px;border:3px solid var(--sky);border-radius:12px;font-size:34px;font-weight:700}
+
+/* Funk-Folie hell */
+.light{background:#fff;color:var(--night)}
+#stage.lt #clock{color:var(--night);text-shadow:none}
+.light .lead{color:#33475a}.light .kicker{color:var(--navy)}
+.light .tag{background:var(--navy);color:#fff}
+.funkimg{position:absolute;right:90px;top:250px;width:760px;filter:drop-shadow(0 30px 40px rgba(7,33,48,.35))}
+.on .funkimg{animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-18px)}}
+
+/* Wetter */
+.wx{position:absolute;left:110px;right:400px;top:240px}
+.wxhead{display:flex;justify-content:space-between;align-items:flex-end}
+.now{display:flex;align-items:center;gap:60px;margin-top:40px}
+.temp{font-size:260px;font-weight:800;line-height:.9;letter-spacing:-6px}
+.cond{font-size:52px;font-weight:700}
+.sub{font-size:36px;font-weight:600;color:#BBD3E8;margin-top:10px}
+.days{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:60px}
+.day{background:rgba(255,255,255,.08);border-radius:12px;padding:28px 34px;display:flex;align-items:center;gap:26px}
+.day b{display:block;font-size:34px}.day span{font-size:32px;color:#BBD3E8;font-weight:600}
+.ico{width:96px;height:96px;flex:none}.ico.xl{width:230px;height:230px}
+.spots{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:50px}
+.spot{background:rgba(255,255,255,.08);border-radius:12px;padding:30px;text-align:center}
+.spot h3{font-size:40px;font-weight:800}
+.arrow{display:block;width:130px;height:130px;margin:22px auto 6px}
+.bft{font-size:96px;font-weight:800;color:var(--sky);line-height:1}
+.bft small{font-size:40px;color:#fff}
+.spot p{font-size:30px;font-weight:600;color:#BBD3E8;margin-top:10px}
+.src{position:absolute;left:110px;bottom:170px;font-size:24px;color:#8FB0CC;font-weight:600}
+.demo{display:none;margin-left:16px;color:#ffcf66}
+.isdemo .demo{display:inline}
+
+/* Kontakt */
+.contact{display:flex;gap:90px;align-items:center;margin-top:50px}
+.qr{background:#fff;border-radius:12px;padding:22px;width:360px;height:360px}
+.qr img{width:100%;height:100%}
+.line{font-size:46px;font-weight:700;margin:12px 0}
+.line span{color:var(--sky)}
+
+/* --- Dauerhafte Elemente --- */
+#logo{position:absolute;left:60px;top:44px;width:380px;z-index:10;background:#fff;padding:8px;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#clock{position:absolute;right:70px;top:52px;z-index:10;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+#clock b{display:block;font-size:64px;font-weight:800;line-height:1}
+#clock span{font-size:28px;font-weight:600}
+#bar{position:absolute;left:0;right:0;bottom:0;height:110px;z-index:10;background:var(--navy);display:flex;align-items:center;padding-right:290px}
+#bar .call{flex:none;height:100%;display:flex;align-items:center;padding:0 44px;background:var(--sky);color:var(--night);font-size:38px;font-weight:800}
+#ticker{flex:1;overflow:hidden;white-space:nowrap;font-size:38px;font-weight:700}
+#ticker div{display:inline-block;padding-left:100%;animation:tick 48s linear infinite}
+#ticker i{font-style:normal;color:var(--sky);margin:0 34px}
+@keyframes tick{to{transform:translateX(-100%)}}
+#wave{position:absolute;left:0;bottom:104px;width:3840px;height:40px;z-index:9;animation:wave 14s linear infinite}
+@keyframes wave{to{transform:translateX(-1920px)}}
+#prog{position:absolute;left:0;bottom:110px;height:6px;background:var(--sky);z-index:11;width:0}
+#hint{position:absolute;right:320px;bottom:120px;z-index:12;font-size:18px;color:#8FB0CC;font-weight:600}
+/* QR-Ecke */
+#qrc{position:absolute;right:0;bottom:0;z-index:12;width:290px;background:#fff;border-radius:14px 0 0 0;padding:20px 22px 14px;text-align:center;box-shadow:0 -6px 30px rgba(0,0,0,.3);transition:transform .8s}
+#qrc img{display:block;width:246px;height:246px}
+#qrc b{display:block;color:var(--navy);font-size:25px;font-weight:800;line-height:1.15;margin-top:8px}
+#stage.noqr #qrc{transform:translateY(110%)}
+.on #qrc{}
+/* Fakten */
+.facts{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;margin-top:70px;text-align:center}
+.fact svg{width:130px;height:130px;margin:0 auto 18px;display:block}
+.fact p{font-size:32px;font-weight:600;color:#DDE9F3;line-height:1.2}
+.fact .num{font-size:104px;font-weight:800;line-height:1.1;color:#fff;margin:6px 0}
+/* Termine */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-top:44px;width:1430px}
+.card{background:#fff;color:var(--night);border-radius:12px;padding:38px 40px 34px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.card .ctag{display:inline-block;font-size:28px;font-weight:800;padding:6px 22px;border-radius:999px;background:var(--navy);color:#fff}
+.card h3{font-size:46px;font-weight:800;margin:20px 0 18px;line-height:1.1}
+.chips{display:flex;flex-wrap:wrap;gap:14px}
+.chip{background:var(--ice);border:3px solid var(--sky);border-radius:10px;padding:10px 18px;text-align:center;min-width:150px}
+.chip small{display:block;font-size:24px;font-weight:700;color:var(--navy)}
+.chip b{font-size:44px;font-weight:800;line-height:1.1}
+.card .meta{font-size:30px;font-weight:600;color:#33475a;margin-top:22px;line-height:1.35}
+.card .price{font-size:44px;font-weight:800;color:var(--navy);margin-top:14px}
+.card .next{font-size:24px;font-weight:600;color:#666;margin-top:14px;border-top:2px solid #D5DEE6;padding-top:12px}
+@media (prefers-reduced-motion:reduce){.on .bg,#wave,#ticker div,.on .funkimg{animation:none}}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 Hook -->
+  <section class="slide" data-s="9">
+    <div class="bg" style="background-image:url(assets/yacht.jpg)"></div><div class="shade"></div>
+    <div class="content">
+      <p class="kicker a" style="--i:0">Segel-und-Bootsfahrschule.de · Nürnberg</p>
+      <h1 class="a" style="--i:1">Freiheit auf dem Wasser?</h1>
+      <p class="lead a" style="--i:2">Hol Dir Deinen Bootsführerschein – Theorie, Praxis und Prüfung aus einer Hand.</p>
+      <div class="tags a" style="--i:3"><span class="tag">SBF See</span><span class="tag">SBF Binnen</span><span class="tag">SKS</span><span class="tag o">SRC</span><span class="tag o">UBI</span><span class="tag o">FKN</span></div>
+    </div>
+  </section>
+
+  <!-- 2 SBF -->
+  <section class="slide" data-s="9">
+    <div class="photo"><div class="bg" style="background-image:url(assets/gleiter.jpg)"></div></div>
+    <div class="content">
+      <p class="kicker a" style="--i:0">Motorboot</p>
+      <h2 class="a" style="--i:1">Sportbootführerschein See &amp; Binnen</h2>
+      <ul class="pts">
+        <li class="a" style="--i:2">Präsenzkurs in Nürnberg – parallel live im Webinar</li>
+        <li class="a" style="--i:3">Wochenend-Kompaktkurse</li>
+        <li class="a" style="--i:4">E-Learning auf unserer Lernplattform</li>
+        <li class="a" style="--i:5">Exakte Ausbildungsvideos zur Prüfungsvorbereitung</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Termine (aus kurse.json) -->
+  <section class="slide" id="termine" data-s="13">
+    <div class="bg" style="background-image:url(assets/seminar.jpg);filter:blur(5px) brightness(.4)"></div><div class="shade full"></div>
+    <div class="content" style="top:235px;width:1500px">
+      <h2 class="a" style="--i:0">Die nächsten Kurstermine</h2>
+      <div class="cards">
+        <div class="card a" style="--i:1" id="cKombi"></div>
+        <div class="card a" style="--i:2" id="cSrc"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Praxis -->
+  <section class="slide" data-s="9">
+    <div class="photo"><div class="bg" style="background-image:url(assets/schulboot.jpg)"></div></div>
+    <div class="content">
+      <p class="kicker a" style="--i:0">Praxis</p>
+      <h2 class="a" style="--i:1">Fahrstunden auf unserem Schulboot</h2>
+      <ul class="pts">
+        <li class="a" style="--i:2">Am Main-Donau-Kanal in Gebersdorf</li>
+        <li class="a" style="--i:3">Beheizt – also auch im Winter gemütlich</li>
+        <li class="a" style="--i:4">Termine online selbst buchen</li>
+        <li class="a" style="--i:5">Bei allen Nürnberger Prüfungsterminen dabei</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Fakten (wie auf der Website) -->
+  <section class="slide" data-s="10">
+    <div class="bg" style="background-image:url(assets/gleiter.jpg);filter:brightness(.3) blur(3px)"></div><div class="shade full"></div>
+    <div class="content" style="top:250px;left:70px;width:1540px">
+      <h2 class="a" style="--i:0;text-align:center">Darum lernst Du bei uns</h2>
+      <div class="facts">
+<div class="fact a" style="--i:1"><svg viewBox="0 0 100 100" fill="#469BE1"><path d="M22 6h18l10 20 10-20h18L62 40H38z" opacity=".6"/><circle cx="50" cy="64" r="28"/><path d="m50 48 5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z" fill="#072130"/></svg><p>uns gibt es seit</p><div class="num" data-count="10" data-pre="+" data-suf="">0</div><p>Jahren</p></div>
+<div class="fact a" style="--i:2"><svg viewBox="0 0 100 100" fill="#469BE1"><path d="M50 10 4 30l46 20 46-20z"/><path d="M24 42v18c0 8 12 14 26 14s26-6 26-14V42L50 54z"/><rect x="86" y="30" width="5" height="26" rx="2"/></svg><p>wir zählen über</p><div class="num" data-count="3000" data-pre="" data-suf="">0</div><p>erfolgreiche Ausbildungen</p></div>
+<div class="fact a" style="--i:3"><svg viewBox="0 0 100 100" fill="#469BE1"><path d="M28 8h44v26c0 14-10 24-22 24S28 48 28 34z"/><path d="M28 14H12c0 16 8 24 18 24M72 14h16c0 16-8 24-18 24" fill="none" stroke="#469BE1" stroke-width="6"/><rect x="44" y="58" width="12" height="16"/><rect x="30" y="76" width="40" height="12" rx="3"/></svg><p>Erfolg</p><div class="num" data-count="100" data-pre="" data-suf="%">0</div><p>positive Bewertungen</p></div>
+<div class="fact a" style="--i:4"><svg viewBox="0 0 100 100" fill="#469BE1"><rect x="8" y="12" width="84" height="76" rx="10" fill="none" stroke="#469BE1" stroke-width="7"/><circle cx="28" cy="34" r="5"/><circle cx="28" cy="50" r="5"/><circle cx="28" cy="66" r="5"/><rect x="40" y="30" width="38" height="8" rx="4"/><rect x="40" y="46" width="38" height="8" rx="4"/><rect x="40" y="62" width="38" height="8" rx="4"/></svg><p>Unsere Kurse</p><div class="num" data-count="13" data-pre="+" data-suf="">0</div><p>für alle Belange</p></div>
+<div class="fact a" style="--i:5"><svg viewBox="0 0 100 100" fill="#469BE1"><circle cx="36" cy="32" r="16"/><path d="M8 84c0-18 12-30 28-30s28 12 28 30z"/><circle cx="70" cy="38" r="13" opacity=".7"/><path d="M60 58c4-2 7-3 10-3 13 0 22 10 22 29H70c0-11-3-19-10-26z" opacity=".7"/></svg><p>nur mit uns</p><div class="num" data-count="100" data-pre="" data-suf="%">0</div><p>persönlich</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Statistik -->
+  <section class="slide" data-s="9">
+    <div class="content" style="top:260px;width:1700px">
+      <p class="kicker a" style="--i:0">Von rund 300 Praxisprüfungen im Jahr bestehen</p>
+      <div class="stat a" style="--i:1"><span class="big" data-count="298">0</span><span class="of">von 300</span></div>
+      <p class="lead a" style="--i:2">im ersten Anlauf. Und wer mehr Übung braucht, bekommt einfach zusätzliche Fahrstunden.</p>
+      <div class="badge a" style="--i:3">Anerkannte Ausbildungsstätte des DMYV</div>
+    </div>
+  </section>
+
+  <!-- 5 SKS -->
+  <section class="slide" data-s="9">
+    <div class="photo"><div class="bg" style="background-image:url(assets/skipper.jpg);background-position:center 30%"></div></div>
+    <div class="content">
+      <p class="kicker a" style="--i:0">Segeln</p>
+      <h2 class="a" style="--i:1">Sportküsten&shy;schifferschein im Mittelmeer</h2>
+      <ul class="pts">
+        <li class="a" style="--i:2">SKS-Theorie in Nürnberg oder online</li>
+        <li class="a" style="--i:3">Praxis auf unserer eigenen Yacht</li>
+        <li class="a" style="--i:4">Skippertraining &amp; Ausbildungstörns</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6 Funk -->
+  <section class="slide light" data-s="9">
+    <img class="funkimg" src="assets/funk.jpg" alt="">
+    <div class="content">
+      <p class="kicker a" style="--i:0">Zusatzscheine</p>
+      <h2 class="a" style="--i:1">Funk &amp; Seenot&shy;signale</h2>
+      <p class="lead a" style="--i:2">Theorie kompakt, Praxis am echten Funkgerät.</p>
+      <div class="tags a" style="--i:3"><span class="tag">SRC</span><span class="tag">UBI</span><span class="tag">FKN</span></div>
+    </div>
+  </section>
+
+  <!-- 7 Wetter Nürnberg -->
+  <section class="slide" id="wxN" data-s="11">
+    <div class="bg" style="background-image:url(assets/hafen.jpg);filter:blur(6px) brightness(.55)"></div><div class="shade full"></div>
+    <div class="wx">
+      <div class="wxhead a" style="--i:0"><h2>Wetter Nürnberg</h2></div>
+      <div class="now a" style="--i:1">
+        <svg class="ico xl" id="nIco"></svg>
+        <div><div class="temp" id="nTemp">–</div></div>
+        <div><div class="cond" id="nCond">–</div><div class="sub" id="nWind">–</div></div>
+      </div>
+      <div class="days a" style="--i:2" id="nDays"></div>
+    </div>
+    <p class="src">Wetterdaten: Open-Meteo.com<span class="demo">· Vorschau mit Beispielwerten – am Raspi live</span></p>
+  </section>
+
+  <!-- 8 Seewetter Nordadria -->
+  <section class="slide" id="wxA" data-s="12">
+    <div class="bg" style="background-image:url(assets/segel.jpg);filter:blur(8px) brightness(.45)"></div><div class="shade full"></div>
+    <div class="wx">
+      <div class="wxhead a" style="--i:0"><h2>Seewetter Nordadria</h2><span class="sub" id="aTime"></span></div>
+      <div class="spots a" style="--i:1" id="aSpots"></div>
+    </div>
+    <p class="src">Wind &amp; Seegang: Open-Meteo.com · keine amtliche Wettervorhersage für die Navigation<span class="demo">· Vorschau mit Beispielwerten – am Raspi live</span></p>
+  </section>
+
+  <!-- 9 Kontakt -->
+  <section class="slide" data-noqr data-s="10">
+    <div class="bg" style="background-image:url(assets/karte.jpg);filter:brightness(.35)"></div><div class="shade full"></div>
+    <div class="content" style="top:250px;width:1700px">
+      <p class="kicker a" style="--i:0">Kurse in Nürnberg, Ansbach, Höchstadt &amp; Neumarkt</p>
+      <h1 class="a" style="--i:1">Jetzt fürs Frühjahr buchen!</h1>
+      <div class="contact a" style="--i:2">
+        <div class="qr"><img src="assets/qr.svg" alt="QR-Code zur Website"></div>
+        <div>
+          <p class="line">Scan &amp; buch Deinen Kurs – alle Termine auf einen Blick</p>
+          <p class="line"><span>Web</span> segel-und-bootsfahrschule.de</p>
+          <p class="line"><span>Anruf &amp; WhatsApp</span> 0170 4121670</p>
+          <p class="line"><span>Mail</span> werner@segel-und-bootsfahrschule.de</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- dauerhafte Elemente -->
+  <img id="logo" src="assets/logo.png" alt="Segel-und-Bootsfahrschule.de">
+  <div id="clock"><b id="cTime">--:--</b><span id="cDate"></span></div>
+  <svg id="wave" viewBox="0 0 3840 40" preserveAspectRatio="none"><path id="wp" fill="var(--navy)"/></svg>
+  <div id="prog"></div>
+  <div id="bar">
+    <div class="call">0170 4121670</div>
+    <div id="ticker"><div><span id="tkKurs"></span>Jetzt Frühjahrskurse buchen<i>~</i>Fahrstunden online buchen auf segel-und-bootsfahrschule.de<i>~</i>Theorie in Präsenz oder live von daheim<i>~</i>SBF See · SBF Binnen · SKS · SRC · UBI · FKN<i>~</i>Fragen? Schreib uns per WhatsApp: 0170 4121670</div></div>
+  </div>
+  <div id="qrc"><img src="assets/qr.svg" alt="QR-Code Kurstermine"><b>Kurstermine<br>&amp; Buchung</b></div>
+  <div id="hint">Vorschau: ← → blättern</div>
+</div>
+
+<script>
+{
+const stage=document.getElementById('stage');
+const fit=()=>{const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(-50%,-50%) scale(${s})`};
+addEventListener('resize',fit);fit();
+if(new URLSearchParams(location.search).has('kiosk'))document.getElementById('hint').remove();
+
+/* Welle aus dem Logo, nahtlos wiederholt */
+let d='M0 40 L0 20';for(let x=0;x<=3840;x+=240)d+=` Q${x+60} 2 ${x+120} 20 T${x+240} 20`;
+document.getElementById('wp').setAttribute('d',d+' L3840 40 Z');
+
+/* Uhr */
+const tick=()=>{const n=new Date();
+ document.getElementById('cTime').textContent=n.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+ document.getElementById('cDate').textContent=n.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})};
+tick();setInterval(tick,10000);
+
+/* Folienwechsel */
+const slides=[...document.querySelectorAll('.slide')],prog=document.getElementById('prog');
+let cur=-1,timer;
+const count=el=>{const t=+el.dataset.count,t0=performance.now(),pre=el.dataset.pre||'',suf=el.dataset.suf||'';
+ const st=now=>{const p=Math.min((now-t0)/1800,1);el.textContent=pre+Math.round(t*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(st)};
+ el.textContent=pre+'0'+suf;setTimeout(()=>requestAnimationFrame(st),700)};
+const show=(i,dir=1)=>{
+ let n=0;cur=(i+slides.length)%slides.length;
+ while(slides[cur].dataset.skip!==undefined&&n++<slides.length)cur=(cur+dir+slides.length)%slides.length;
+ const s=slides[cur],dur=+s.dataset.s;
+ stage.classList.toggle('noqr',s.dataset.noqr!==undefined);
+ slides.forEach(x=>x.classList.remove('on'));void s.offsetWidth;
+ s.style.setProperty('--dur',dur+'s');s.classList.add('on');
+ s.querySelectorAll('[data-count]').forEach(count);
+ stage.classList.toggle('lt',s.classList.contains('light'));
+ prog.style.transition='none';prog.style.width='0';void prog.offsetWidth;
+ prog.style.transition=`width ${dur}s linear`;prog.style.width='100%';
+ clearTimeout(timer);timer=setTimeout(()=>show(cur+1),dur*1000)};
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')show(cur+1);if(e.key==='ArrowLeft')show(cur-1,-1)});
+show(0);
+
+/* ---------- Wetter ---------- */
+const WMO={0:['Klar','sun'],1:['Überwiegend klar','sun'],2:['Teils bewölkt','part'],3:['Bedeckt','cloud'],45:['Nebel','fog'],48:['Nebel mit Reif','fog'],
+ 51:['Leichter Niesel','rain'],53:['Niesel','rain'],55:['Starker Niesel','rain'],61:['Leichter Regen','rain'],63:['Regen','rain'],65:['Starker Regen','rain'],
+ 66:['Gefrierender Regen','rain'],67:['Gefrierender Regen','rain'],71:['Leichter Schnee','snow'],73:['Schnee','snow'],75:['Starker Schnee','snow'],77:['Schneegriesel','snow'],
+ 80:['Regenschauer','rain'],81:['Regenschauer','rain'],82:['Heftige Schauer','rain'],85:['Schneeschauer','snow'],86:['Schneeschauer','snow'],95:['Gewitter','storm'],96:['Gewitter mit Hagel','storm'],99:['Gewitter mit Hagel','storm']};
+const cl='<path d="M30 74h44a18 18 0 0 0 0-36 26 26 0 0 0-50 6 15 15 0 0 0 6 30z" fill="#fff"/>';
+const ICO={sun:'<circle cx="50" cy="50" r="20" fill="#FFC94A"/><g stroke="#FFC94A" stroke-width="6" stroke-linecap="round">'+[0,45,90,135,180,225,270,315].map(a=>`<line x1="50" y1="14" x2="50" y2="4" transform="rotate(${a} 50 50)"/>`).join('')+'</g>',
+ part:'<circle cx="38" cy="36" r="16" fill="#FFC94A"/>'+cl,cloud:cl,
+ fog:cl+'<g stroke="#BBD3E8" stroke-width="5" stroke-linecap="round"><line x1="22" y1="86" x2="78" y2="86"/><line x1="30" y1="96" x2="70" y2="96"/></g>',
+ rain:cl+'<g stroke="#469BE1" stroke-width="5" stroke-linecap="round"><line x1="36" y1="82" x2="32" y2="94"/><line x1="52" y1="82" x2="48" y2="94"/><line x1="68" y1="82" x2="64" y2="94"/></g>',
+ snow:cl+'<g fill="#fff"><circle cx="36" cy="88" r="4"/><circle cx="52" cy="92" r="4"/><circle cx="68" cy="88" r="4"/></g>',
+ storm:cl+'<path d="M52 74 42 90h10l-6 12 16-20H52l6-8z" fill="#FFC94A"/>'};
+const wmo=c=>WMO[c]||['–','cloud'];
+const ico=(el,c)=>{el.setAttribute('viewBox','0 0 100 100');el.innerHTML=ICO[wmo(c)[1]]};
+const bft=kn=>{const i=[1,4,7,11,17,22,28,34,41,48,56,64].findIndex(v=>kn<v);return i<0?12:i};
+const RICHT=['N','NO','O','SO','S','SW','W','NW'];
+const richt=deg=>RICHT[Math.round(deg/45)%8];
+const day=s=>new Date(s+'T12:00').toLocaleDateString('de-DE',{weekday:'long'});
+
+const SPOTS=[['Triest',45.64,13.75],['Rovinj',45.08,13.62],['Pula',44.86,13.82],['Mali Lošinj',44.53,14.45]];
+
+/* Beispielwerte nur für die Vorschau, falls kein Internet / kein Zugriff */
+const DEMO={n:{current:{temperature_2m:3.4,weather_code:3,wind_speed_10m:9,wind_direction_10m:250},
+ daily:{time:['2026-11-27','2026-11-28','2026-11-29','2026-11-30'],weather_code:[3,61,2,71],temperature_2m_max:[5,6,4,2],temperature_2m_min:[0,2,-1,-3]}},
+ a:[[22,45,31,1.1],[16,40,24,0.9],[14,35,21,0.8],[19,45,27,1.2]]};
+
+const drawN=(j,demo)=>{const c=j.current;
+ ico(document.getElementById('nIco'),c.weather_code);
+ document.getElementById('nTemp').textContent=Math.round(c.temperature_2m)+'°';
+ document.getElementById('nCond').textContent=wmo(c.weather_code)[0];
+ document.getElementById('nWind').textContent=`Wind ${richt(c.wind_direction_10m)} ${bft(c.wind_speed_10m)} Bft`;
+ const D=j.daily;document.getElementById('nDays').innerHTML=[1,2,3].map(i=>
+  `<div class="day"><svg class="ico" viewBox="0 0 100 100">${ICO[wmo(D.weather_code[i])[1]]}</svg><div><b>${day(D.time[i])}</b><span>${Math.round(D.temperature_2m_min[i])}° / ${Math.round(D.temperature_2m_max[i])}° · ${wmo(D.weather_code[i])[0]}</span></div></div>`).join('');
+ document.getElementById('wxN').classList.toggle('isdemo',!!demo)};
+
+const drawA=(rows,demo)=>{
+ document.getElementById('aSpots').innerHTML=SPOTS.map(([n],i)=>{const [kn,dir,gu,wv]=rows[i];
+  return `<div class="spot"><h3>${n}</h3>
+   <svg class="arrow" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3"/><path d="M50 8 70 44 56 42 56 90 44 90 44 42 30 44z" fill="#469BE1" transform="rotate(${(dir+180)%360} 50 50)"/></svg>
+   <div class="bft">${bft(kn)}<small> Bft</small></div>
+   <p>aus ${richt(dir)} · Böen ${Math.round(gu)} kn</p><p>Welle ${wv==null?'–':wv.toFixed(1).replace('.',',')+' m'}</p></div>`}).join('');
+ document.getElementById('aTime').textContent='Stand '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr';
+ document.getElementById('wxA').classList.toggle('isdemo',!!demo)};
+
+const get=u=>fetch(u).then(r=>{if(!r.ok)throw r.status;return r.json()});
+const lat=SPOTS.map(s=>s[1]).join(','),lon=SPOTS.map(s=>s[2]).join(',');
+const loadWx=async()=>{
+ try{const j=await get('https://api.open-meteo.com/v1/forecast?latitude=49.45&longitude=11.08&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=4&wind_speed_unit=kn&timezone=Europe%2FBerlin');
+  drawN(j);try{localStorage.wxN=JSON.stringify(j)}catch(e){}}
+ catch(e){let c=null;try{c=JSON.parse(localStorage.wxN)}catch(_){}drawN(c||DEMO.n,!c)}
+ try{const [w,m]=await Promise.all([
+   get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn`),
+   get(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height`)]);
+  const rows=w.map((x,i)=>[x.current.wind_speed_10m,x.current.wind_direction_10m,x.current.wind_gusts_10m,m[i]?.current?.wave_height]);
+  drawA(rows);try{localStorage.wxA=JSON.stringify(rows)}catch(e){}}
+ catch(e){let c=null;try{c=JSON.parse(localStorage.wxA)}catch(_){}drawA(c||DEMO.a,!c)}};
+loadWx();setInterval(loadWx,15*60*1000);
+
+/* ---------- Kurstermine aus kurse.json ---------- */
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const WT=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const parse=k=>{const d=(k.name.match(/\d{2}\.\d{2}\.\d{2}/g)||[]).map(x=>{const [t,m,j]=x.split('.');return new Date(2000+ +j,m-1,+t)});
+ const ort=(k.name.match(/\(([^)]+)\)\s*$/)||[])[1]||'';return {...k,d,ort}};
+const heute=()=>{const n=new Date();n.setHours(0,0,0,0);return n};
+const dm=d=>d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+const dmy=d=>d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+const euro=p=>p.toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:2})+' €';
+const drawKurse=j=>{
+ const h=heute();
+ const kombi=(j.kombi||[]).map(parse).filter(k=>k.d.length&&k.d[0]>=h).sort((a,b)=>a.d[0]-b.d[0]);
+ const src=(j.src||[]).map(parse).filter(k=>k.d.length&&k.d[0]>=h).sort((a,b)=>a.d[0]-b.d[0]);
+ const tk=[];
+ if(kombi.length){const k=kombi[0],wei=kombi.slice(1,3);
+  document.getElementById('cKombi').innerHTML=`<span class="ctag">SBF See + Binnen · Kombi-Kurs</span>
+   <h3>${k.name.includes('Oster')?'Oster-Special':'Theorie komplett'} in ${esc(k.ort)}</h3>
+   <div class="chips">${k.d.map(d=>`<div class="chip"><small>${WT[d.getDay()]}</small><b>${dm(d)}</b></div>`).join('')}</div>
+   <p class="meta">${k.d[0].getFullYear()} · Präsenz oder Live-Webinar</p>
+   <p class="price">${euro(k.preis)}</p>
+   ${wei.length?`<p class="next">Danach: ${wei.map(w=>esc(dmy(w.d[0])+' '+w.ort)).join(' · ')}</p>`:''}`;
+  tk.push(`Nächster Kombi-Kurs SBF See + Binnen: ab ${dmy(k.d[0])} in ${k.ort}`)}
+ if(src.length){const last=src[0].d[src[0].d.length-1].getTime();
+  const grp=src.filter(k=>k.d[k.d.length-1].getTime()===last);
+  const starts=[...new Set(grp.map(k=>k.d[0].getTime()))].sort().map(t=>new Date(t));
+  const s0=grp[0];
+  document.getElementById('cSrc').innerHTML=`<span class="ctag">Funk · SRC</span>
+   <h3>SRC-Funkkurs in ${esc(s0.ort)}</h3>
+   <div class="chips">${starts.map(d=>`<div class="chip"><small>Start ${WT[d.getDay()]}</small><b>${dm(d)}</b></div>`).join('')}</div>
+   <p class="meta">Theorie &amp; Praxis an 3 Tagen, Abschluss ${dmy(new Date(last))} · Präsenz oder Live-Webinar</p>
+   <p class="price">${euro(s0.preis)}</p>`;
+  tk.push(`Nächster SRC-Funkkurs: Start ${starts.map(dm).join(' oder ')}${starts[0].getFullYear()}`.replace(/(\d{2}\.\d{2}\.)(\d{4})$/,'$1$2'))}
+ const t=document.getElementById('termine');
+ if(!kombi.length&&!src.length)t.dataset.skip='';else delete t.dataset.skip;
+ document.getElementById('cKombi').style.display=kombi.length?'':'none';
+ document.getElementById('cSrc').style.display=src.length?'':'none';
+ document.getElementById('tkKurs').innerHTML=tk.map(x=>esc(x)+'<i>~</i>').join('')};
+const loadKurse=()=>fetch('kurse.json?'+Date.now()).then(r=>r.json()).then(drawKurse).catch(()=>{});
+loadKurse();setInterval(loadKurse,30*60*1000);
+
+/* Auto-Update: neue Version im Repo -> Seite neu laden */
+let ver=null;
+const checkVer=()=>fetch('version.json?'+Date.now()).then(r=>r.json()).then(j=>{if(ver&&j.v!==ver)location.reload();ver=j.v}).catch(()=>{});
+checkVer();setInterval(checkVer,5*60*1000);
+}
+</script>
+</body>
+</html>
