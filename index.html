@@ -102,6 +102,11 @@ ul.pts li::before{content:"";position:absolute;left:0;top:22px;width:44px;height
 @keyframes wave{to{transform:translateX(-1920px)}}
 #prog{position:absolute;left:0;bottom:110px;height:6px;background:var(--sky);z-index:11;width:0}
 #hint{position:absolute;right:320px;bottom:120px;z-index:12;font-size:18px;color:#8FB0CC;font-weight:600}
+/* Video-Karte (Hook) */
+.vid{position:absolute;right:330px;top:150px;height:780px;aspect-ratio:9/16;border-radius:24px;overflow:hidden;border:6px solid #fff;box-shadow:0 30px 70px rgba(0,0,0,.55);opacity:0;transform:translateX(80px) rotate(3deg);background:#072130}
+.vid video{width:100%;height:100%;object-fit:cover;display:block}
+.on .vid{animation:vin 1s cubic-bezier(.2,.8,.2,1) .5s forwards}
+@keyframes vin{to{opacity:1;transform:rotate(2deg)}}
 /* QR-Ecke */
 #qrc{position:absolute;right:0;bottom:0;z-index:12;width:290px;background:#fff;border-radius:14px 0 0 0;padding:20px 22px 14px;text-align:center;box-shadow:0 -6px 30px rgba(0,0,0,.3);transition:transform .8s}
 #qrc img{display:block;width:246px;height:246px}
@@ -132,8 +137,9 @@ ul.pts li::before{content:"";position:absolute;left:0;top:22px;width:44px;height
 <div id="stage">
 
   <!-- 1 Hook -->
-  <section class="slide" data-s="9">
+  <section class="slide" data-s="12">
     <div class="bg" style="background-image:url(assets/yacht.jpg)"></div><div class="shade"></div>
+    <div class="vid"><video src="assets/spot.mp4" poster="assets/spot-poster.jpg" muted loop playsinline preload="auto"></video></div>
     <div class="content">
       <p class="kicker a" style="--i:0">Segel-und-Bootsfahrschule.de · Nürnberg</p>
       <h1 class="a" style="--i:1">Freiheit auf dem Wasser?</h1>
@@ -144,7 +150,7 @@ ul.pts li::before{content:"";position:absolute;left:0;top:22px;width:44px;height
 
   <!-- 2 SBF -->
   <section class="slide" data-s="9">
-    <div class="photo"><div class="bg" style="background-image:url(assets/gleiter.jpg)"></div></div>
+    <div class="photo"><div class="bg" style="background-image:url(assets/motorboot.jpg);background-position:45% 55%"></div></div>
     <div class="content">
       <p class="kicker a" style="--i:0">Motorboot</p>
       <h2 class="a" style="--i:1">Sportbootführerschein See &amp; Binnen</h2>
@@ -186,7 +192,7 @@ ul.pts li::before{content:"";position:absolute;left:0;top:22px;width:44px;height
 
   <!-- Fakten (wie auf der Website) -->
   <section class="slide" data-s="10">
-    <div class="bg" style="background-image:url(assets/gleiter.jpg);filter:brightness(.3) blur(3px)"></div><div class="shade full"></div>
+    <div class="bg" style="background-image:url(assets/motorboot.jpg);filter:brightness(.3) blur(3px)"></div><div class="shade full"></div>
     <div class="content" style="top:250px;left:70px;width:1540px">
       <h2 class="a" style="--i:0;text-align:center">Darum lernst Du bei uns</h2>
       <div class="facts">
@@ -211,7 +217,7 @@ ul.pts li::before{content:"";position:absolute;left:0;top:22px;width:44px;height
 
   <!-- 5 SKS -->
   <section class="slide" data-s="9">
-    <div class="photo"><div class="bg" style="background-image:url(assets/skipper.jpg);background-position:center 30%"></div></div>
+    <div class="photo"><div class="bg" style="background-image:url(assets/werner.jpg);background-position:center 25%"></div></div>
     <div class="content">
       <p class="kicker a" style="--i:0">Segeln</p>
       <h2 class="a" style="--i:1">Sportküsten&shy;schifferschein im Mittelmeer</h2>
@@ -318,6 +324,7 @@ const show=(i,dir=1)=>{
  while(slides[cur].dataset.skip!==undefined&&n++<slides.length)cur=(cur+dir+slides.length)%slides.length;
  const s=slides[cur],dur=+s.dataset.s;
  stage.classList.toggle('noqr',s.dataset.noqr!==undefined);
+ document.querySelectorAll('video').forEach(v=>{if(s.contains(v)){v.play().catch(()=>{})}else v.pause()});
  slides.forEach(x=>x.classList.remove('on'));void s.offsetWidth;
  s.style.setProperty('--dur',dur+'s');s.classList.add('on');
  s.querySelectorAll('[data-count]').forEach(count);
