@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Holt die Kurstermine (Kombi SBF See+Binnen und SRC) aus dem WooCommerce-Shop
-und schreibt sie nach kurse.json neben index.html. Läuft stündlich als GitHub Action.
+und schreibt sie nach kurse.json neben index.html. Läuft einmal pro Woche (montags) als GitHub Action.
 
 - Bei einem Fehler wird bis zu 3x mit Pause neu versucht.
 - Klappt es trotzdem nicht, bleibt die alte kurse.json stehen und der Lauf gilt als
@@ -23,7 +23,7 @@ ZIEL = pathlib.Path(__file__).resolve().parent.parent / "kurse.json"
 DATUM = re.compile(r"\d{2}\.\d{2}\.\d{2}")
 VERSUCHE = 3
 PAUSE_SEK = 30
-MAX_ALTER_STUNDEN = 48
+MAX_ALTER_STUNDEN = 15 * 24   # zwei verpasste Wochen
 
 
 def hole(suche):
